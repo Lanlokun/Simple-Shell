@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 
 char *strconcat(char *argv1, char *argv2)
 {
 	int i = 0, j = 0;
-	char *result = malloc(sizeof(argv1) * 7);
+	char *result = malloc(sizeof(char) * 100);
 
 	while (argv1[i])
 	{
@@ -32,55 +33,52 @@ char *strconcat(char *argv1, char *argv2)
 
 int main(void)
 {
-	int run = 1, i = 0, j = 0;
-	size_t size = 10;
-	char *buff = malloc(size);
+	
+	size_t size = 20;
 	char *command, *token;
-	char *av[5];
+	char *buff = malloc(sizeof(char) * size);
+	char *delim = " ";
 
-	while (run)
+	pid_t my_pid;
+
+    my_pid = fork();
+    
+	while(1)
 	{
-		printf(": ");
-		getline(&buff, &size, stdin);
-
-
-		token = strtok(buff, " ");
-		while (*token)
-		{
-			if (i == 0)
+			if (my_pid == -1)
 			{
-				if (access(token, F_OK))
+				return (-1);
+			}
+       
+			if (my_pid == 0)
+			{
+				printf(": ");
+				getline(&buff, &size, stdin);
+
+				if (strcmp(buff, "exit\n") == 0)
+				{
+					break;
+				}
+
+				token = strtok(buff, delim);
+				while(token)
 				{
 					command = strconcat("/bin/", token);
-					if (access(command, F_OK))
-					{
-						perror("Error");
-						printf("%s, Error\n", command);
-						/* clear memory & restart */
-						break;
-					}
-
-					else
-						command = token;
+					char *argv[] = {command, NULL};
+					int val = execve(argv[0], argv, NULL);
+					if (val == -1)
+						{
+							perror("Error");
+						}
+					token = strtok(NULL, delim);
 				}
+				printf("%s", command);
+
+				
 			}
 
-
-			av[i] = malloc(strlen(token));
-			while (*token)
-				av[i][j++] = *token++;
-			av[i][j] = '\0';
-			i++;
-			j = 0;
-			token = strtok(NULL, " ");
-		}
-
-
-		if (execve(command, av, NULL) == -1)
-		{
-			perror("exec, Error");
-			/* clear memory & restart */
-			continue;
-		}
 	}
+
+	free(buff);
+	return (0);
 }
