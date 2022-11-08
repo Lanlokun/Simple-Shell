@@ -105,7 +105,7 @@ char **params(char *buff)
 
 int main(void)
 {
-	int run = 1;
+	int run = 1, nb;
 	size_t size = 10;
 	char pid, *buff, **av;
 
@@ -113,7 +113,13 @@ int main(void)
 	{
 		printf(": ");
 		buff = malloc(size);
-		getline(&buff, &size, stdin);
+		nb = getline(&buff, &size, stdin);
+		if (nb == EOF)
+		{
+			printf("\n");
+			free(buff);
+			return (-1);
+		}
 		av = params(buff);
 		if (!av)
 		{
