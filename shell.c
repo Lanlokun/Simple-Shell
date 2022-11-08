@@ -2,85 +2,136 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
+char *strip_cmd(char *token)
+{
+	char *cmd;
+	int i = 0;
 
-char *strconcat(char *argv1, char *argv2)
+	if (!access(token, F_OK))
+		return (token);
+	else
+	{
+		cmd = malloc(sizeof(token) * strlen(token));
+		if (!cmd)
+			return (NULL);
+		while (token)
+		{
+			if (*token == '\n')
+				break;
+			cmd[i++] = *token++;
+		}
+		cmd[i] = '\0';
+	}
+	return (cmd);
+}
+
+char *cmd_path(char *token)
 {
 	int i = 0, j = 0;
-	char *result = malloc(sizeof(argv1) * 7);
+	char *prefix = "/bin/", *cmd, *path;
 
-	while (argv1[i])
+	cmd = strip_cmd(token);
+	if (!cmd)
+		return (NULL);
+	if (!access(cmd, F_OK))
+		return (cmd);
+
+	path = malloc(sizeof(cmd) * strlen(cmd) + 5);
+	if (!path)
 	{
-		result[j] = argv1[i];
-		i++;
-		j++;
+		perror("Error");
+		free(cmd);
+		return(NULL);
 	}
 
-	i = 0; 
+	while (prefix[i])
+		path[j++] = prefix[i++];
 
-	while (argv2[i])
+	i = 0;
+	while (cmd[i])
+		path[j++] = cmd[i++];
+	path[j] = '\0';
+
+	if (access(path, F_OK))
 	{
-		result[j] = argv2[i];
-		i++;
-		j++;
+		perror("Error");
+		free(path);
+		free(cmd);
+		return (NULL);
 	}
-
-	result[j] = '\0';
-
-	return (result);
+	return (path);
 }
+
+char **params(char *buff)
+{
+	char *command, *token, **av;
+	int i = 0, j = 0;
+
+	if (*buff == '\n')
+		return (NULL);
+
+	av = malloc(10);
+	if (!av)
+		return (NULL);
+
+	token = strtok(buff, " ");
+	while (token)
+	{
+		if (i == 0)
+		{
+			token = cmd_path(token);
+			if (!token)
+			{
+				free(av);
+				return (NULL);
+			}
+			command = token;
+		}
+
+		av[i] = malloc(strlen(token));
+
+		while (*token && (*token != '\n'))
+			av[i][j++] = *token++;
+		av[i++][j] = '\0';
+		j = 0;
+		token = strtok(NULL, " ");
+	}
+	return (&*av);
+}
+
 
 int main(void)
 {
-	int run = 1, i = 0, j = 0;
+	int run = 1;
 	size_t size = 10;
-	char *buff = malloc(size);
-	char *command, *token;
-	char *av[5];
+	char pid, *buff, **av;
 
 	while (run)
 	{
 		printf(": ");
+		buff = malloc(size);
 		getline(&buff, &size, stdin);
-
-
-		token = strtok(buff, " ");
-		while (*token)
+		av = params(buff);
+		if (!av)
 		{
-			if (i == 0)
-			{
-				if (access(token, F_OK))
-				{
-					command = strconcat("/bin/", token);
-					if (access(command, F_OK))
-					{
-						perror("Error");
-						printf("%s, Error\n", command);
-						/* clear memory & restart */
-						break;
-					}
-
-					else
-						command = token;
-				}
-			}
-
-
-			av[i] = malloc(strlen(token));
-			while (*token)
-				av[i][j++] = *token++;
-			av[i][j] = '\0';
-			i++;
-			j = 0;
-			token = strtok(NULL, " ");
+			free(buff);
+			continue;
 		}
 
-
-		if (execve(command, av, NULL) == -1)
+		pid = fork();
+		if (pid)
+			wait(NULL);
+		else
 		{
-			perror("exec, Error");
-			/* clear memory & restart */
-			continue;
+			if (execve(av[0], av, NULL) == -1)
+			{
+				perror("exec, Error");
+			}
+			free(av);
+			free(buff);
 		}
 	}
 }
