@@ -123,7 +123,7 @@ int main(void)
 			system("clear");
 			continue;
 		}
-	
+		//move the cursor shell
 
 		av = params(buff);
 
