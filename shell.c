@@ -147,7 +147,7 @@ int main(void)
 		}
 	}
 
-	print("Bye\n");
+	printf("Bye\n");
 	free(buff);
 	return (0);
 }
