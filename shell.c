@@ -36,7 +36,7 @@ char *cmd_path(char *token)
 	cmd = strip_cmd(token);
 	if (!cmd)
 		return (NULL);
-	if (!access(cmd, F_OK))
+	if (!access(cmd, F_OK) || !strcmp(cmd, "cd"))
 		return (cmd);
 
 	path = malloc(sizeof(cmd) * strlen(cmd) + 5);
@@ -138,7 +138,13 @@ int main(void)
 			wait(NULL);
 		else
 		{
-			if (execve(av[0], av, NULL) == -1)
+			if (!strcmp(*av, "cd"))
+			{
+				chdir(av[1]);
+				free(av);
+				continue;
+			}
+			else if (execve(av[0], av, NULL) == -1)
 			{
 				perror("exec, Error");
 				return (1);
