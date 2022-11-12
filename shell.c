@@ -111,11 +111,13 @@ int main(int argc, char **argv)
 	buff = malloc(size);
 
     
-	while(printf(":) "), getline(&buff, &size, stdin) != -1)
-	
+	while(run)
 	{
-
-		if (!strcmp(buff, "exit\n"))
+		if (isatty(STDIN_FILENO) == 1)
+			printf(":) ");
+		nb = getline(&buff, &size, stdin);
+	
+		if (!strcmp(buff, "exit\n") || nb == -1)
 			break;
 
 		if (!strcmp(buff, "clear\n"))
@@ -151,8 +153,6 @@ int main(int argc, char **argv)
 			}
 			free(av);
 		}
-		if (argc == 1)
-			break;
 	}
 
 	printf("Bye\n");
