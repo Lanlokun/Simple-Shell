@@ -103,7 +103,7 @@ char **params(char *buff)
 }
 
 
-int main(void)
+int main(int argc, char **argv)
 {
 	int run = 1, nb;
 	size_t size = 10;
@@ -151,6 +151,8 @@ int main(void)
 			}
 			free(av);
 		}
+		if (argc == 1)
+			break;
 	}
 
 	printf("Bye\n");
