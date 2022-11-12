@@ -1,0 +1,12 @@
+- fixed double/infinite prompt
+- rearranged while & buff malloc
+  : malloc size issue
+  : legibility
+  : eval getlline return val
+- currently (Ctrl+D x2 breaks - it shouldn't)
+- handled cd func (returns back to parent process)
+  : needs more work (perhaps env vars) 
+    + to work when shell is executed from a different file
+	+ update env vars
+
+

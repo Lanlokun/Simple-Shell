@@ -107,12 +107,13 @@ int main(int argc, char **argv)
 {
 	int run = 1, nb;
 	size_t size = 10;
-	char pid, *buff, **av;
-	buff = malloc(size);
+	char pid, *buff, **av, *PROG_NAME = argv[0];
 
     
 	while(run)
 	{
+		size = 10;
+		buff = malloc(size);
 		if (isatty(STDIN_FILENO) == 1)
 			printf(":) ");
 		nb = getline(&buff, &size, stdin);
@@ -126,7 +127,8 @@ int main(int argc, char **argv)
 			continue;
 		}
 	
-
+		if (buff[nb - 1] != '\n')
+			break;
 		av = params(buff);
 
 		if (!av)
@@ -142,20 +144,22 @@ int main(int argc, char **argv)
 		{
 			if (!strcmp(*av, "cd"))
 			{
-				chdir(av[1]);
+				if (chdir(av[1]))
+					perror("Error");
 				free(av);
-				continue;
+				return (0);
 			}
 			else if (execve(av[0], av, NULL) == -1)
 			{
-				perror("exec, Error");
+				printf("%s: ", PROG_NAME);
+				perror("");
 				return (1);
 			}
 			free(av);
 		}
+		free(buff);
 	}
 
 	printf("Bye\n");
-	free(buff);
 	return (0);
 }
