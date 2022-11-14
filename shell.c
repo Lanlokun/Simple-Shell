@@ -109,7 +109,7 @@ char **params(char *buff)
 	if (*buff == '\n')
 		return (NULL);
 
-	av = malloc(10);
+	av = malloc(100);
 	if (!av)
 		return (NULL);
 
@@ -210,10 +210,9 @@ int main(int argc, char **argv)
 
 		av = params(buff);
 
-		if (!strcmp(buff, "cd"))
+		if (!strcmp(buff[0], "cd"))
 		{
 			char *path = av[1];
-			chdir(path);
 			if(!chdir(path))
 				perror("Error");
 		}
