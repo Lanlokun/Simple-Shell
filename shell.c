@@ -5,15 +5,68 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-char *strconcat(char *prefix, char *cmd)
+/*
+* Function Declarations for builtin shell commands:
+* File: shell.c
+* Author: Malik K Lanlokun and Okuhle Nsibande
+*/
+
+char *strip_cmd(char *token)
+{
+	char *cmd;
+	int i = 0;
+
+	if (!access(token, F_OK))
+		return (token);
+	else
+	{
+		cmd = malloc(sizeof(token) * strlen(token));
+		if (!cmd)
+			return (NULL);
+		while (token)
+		{
+			if (*token == '\n')
+				break;
+			cmd[i++] = *token++;
+		}
+		cmd[i] = '\0';
+	}
+	return (cmd);
+}
+
+
+/*
+* Function to check the equality of two provided strings:
+*/
+
+int _strcmp(char *s1, char *s2)
+{
+	int i;
+
+	for (i = 0; s1[i] != '\0'; i++)
+	{
+		if (s1[i] != s2[i])
+			return (s1[i] - s2[i]);
+	}
+	return (0);
+}
+
+char *cmd_path(char *token)
 {
 	int i = 0, j = 0;
-	char *path;
+	char *prefix = "/bin/", *cmd, *path;
 
-	path = malloc(sizeof(cmd) * (strlen(cmd) + 5));
+	cmd = strip_cmd(token);
+	if (!cmd)
+		return (NULL);
+	if (!access(cmd, F_OK) || !strcmp(cmd, "cd"))
+		return (cmd);
+
+	path = malloc(sizeof(cmd) * strlen(cmd) + 5);
 	if (!path)
 	{
 		perror("Error");
+		free(cmd);
 		return(NULL);
 	}
 
@@ -21,7 +74,7 @@ char *strconcat(char *prefix, char *cmd)
 		path[j++] = prefix[i++];
 
 	i = 0;
-	while (cmd[i] && cmd[i] != '\n')
+	while (cmd[i])
 		path[j++] = cmd[i++];
 	path[j] = '\0';
 
@@ -29,11 +82,26 @@ char *strconcat(char *prefix, char *cmd)
 	{
 		perror("Error");
 		free(path);
+		free(cmd);
 		return (NULL);
 	}
-	return (&*path);
+	return (path);
 }
 
+char *_strcat(char *dest, char *src)
+{
+	int i, j;
+
+	for (i = 0; dest[i] != '\0'; i++)
+		;
+	for (j = 0; src[j] != '\0'; j++)
+	{
+		dest[i] = src[j];
+		i++;
+	}
+	dest[i] = '\0';
+	return (dest);
+}
 char **params(char *buff)
 {
 	char *command, *token, **av;
@@ -42,24 +110,30 @@ char **params(char *buff)
 	if (*buff == '\n')
 		return (NULL);
 
-	av = malloc(10);
+	av = malloc(100);
 	if (!av)
 		return (NULL);
 
 	token = strtok(buff, " ");
+
 	while (token)
 	{
-		av[i] = malloc(strlen(token) + 5);
-		if (i == 0 && (!strcmp(token, "cd")))
-				printf("");
-		else if (i == 0 && access(token, F_OK))
-			token = strconcat("/bin/", token);
-		if (!token)
+		/*printf("token: %s", token);*/
+		if (i == 0)
 		{
-			free(av);
-			return (NULL);
+			token = cmd_path(token);
+			if (!token)
+			{
+				free(av);
+				return (NULL);
+			}
+			command = token;
+			printf("command: %s\n", command);
 		}
-		while(*token && (*token != '\n'))
+
+		av[i] = malloc(strlen(token));
+
+		while (*token && (*token != '\n'))
 			av[i][j++] = *token++;
 		av[i++][j] = '\0';
 		j = 0;
@@ -68,34 +142,75 @@ char **params(char *buff)
 	return (&*av);
 }
 
+extern char **environ;
 
-int main(int argc, char **argv)
+int main(void)
 {
 	int run = 1, nb;
 	size_t size = 10;
-	char pid, *buff, **av, *PROG_NAME = argv[0];
+	pid_t pid;
+	char *buff, **av;
+
 
     
 	while(run)
 	{
 		size = 10;
+
 		buff = malloc(size);
+
+		if (!buff)
+			return (1);
+		
 		if (isatty(STDIN_FILENO) == 1)
 			printf(":) ");
 		nb = getline(&buff, &size, stdin);
+
+
+		/*
+		*statement that executes the exit command
+		*/
 	
-		if (!strcmp(buff, "exit\n") || nb == -1)
+		if (!strcmp(buff, "exit\n"))
+		{
 			break;
+		}
+
+		/*
+		*statement that prints the env variables
+		*/
+
+		if(!strcmp(buff, "env\n"))
+		{
+			for (nb = 0; environ[nb]; nb++)
+			{
+				printf("%s\n", environ[nb]);
+			}
+			continue;
+		}
+
+		/*
+		*statement that executes the clear command
+		*/
 
 		if (!strcmp(buff, "clear\n"))
 		{
 			system("clear");
 			continue;
 		}
+
 	
 		if (buff[nb - 1] != '\n')
 			break;
+
 		av = params(buff);
+
+		if (!strcmp(buff, "cd"))
+		{
+			char *path = av[1];
+			if(chdir(path))
+				perror("Error");
+		}
 
 		if (!av)
 		{
@@ -103,31 +218,53 @@ int main(int argc, char **argv)
 			continue;
 		}
 
+		/*
+		* child process created for the execution of commands passed
+		*/
+	
 		pid = fork();
-		if (pid)
-			wait(NULL);
+
+		if (pid == -1)
+		{	
+			perror("Error");
+			return (-1);
+		}
+		if (pid == 0)
+		{
+
+			if (execve(*av, av, environ) == -1)
+			{
+				pid = -1;
+				
+				perror("Error");
+				free(buff);
+				free(av);
+				return (-1);
+			}
+
+		
+		}
 		else
 		{
-			if (!strcmp(*av, "cd"))
-			{
-				if (chdir(av[1]))
-					perror("Error");
-				write(1, "passed through", 10);
-				return (0);
-			}
-			else if (execve(av[0], av, NULL) == -1)
-			{
-				printf("%s: ", PROG_NAME);
-				perror("");
-				while (av)
-					printf("%s ", *av++);
-				return (1);
-			}
-			free(av);
+			wait(NULL);
 		}
-		free(buff);
-	}
 
-	printf("Bye\n");
-	return (0);
+	/*
+	 *release of all memory used
+	 */
+
+		free(av);
+		free(buff);
+		}
+
+	/*
+	 * program terminates here
+	 */
+
+
+		printf("\nBye\n");
+		return (0);
+
 }
+
+
