@@ -206,9 +206,12 @@ int main(void)
 
 		av = params(buff);
 
-		if (!strcmp(buff, "cd"))
+		if (!strcmp(buff, "cd") || !strcmp(buff, "cd\n"))
 		{
 			char *path = av[1];
+
+			if(!path)
+				path = "/";
 			if(chdir(path))
 				perror("Error");
 		}
@@ -223,19 +226,17 @@ int main(void)
 		* child process created for the execution of commands passed
 		*/
 
-		printf("firstpid: %d\n", getpid());
 	
 		pid = fork();
 
 		if (pid == 0)
 		{
-			printf("pid: %d\n", getpid());
+
 
 			int execute = execve(*av, av, environ);
 
 			if (execute == -1)
 			{
-				perror("Error");
 				exit(1);
 				printf("pid: %d\n", getpid());
 			}
@@ -259,7 +260,6 @@ int main(void)
 	 * program terminates here
 	 */
 
-	    printf("pid %d\n", getpid());
 
 		printf("\nBye\n");
 		return (0);
