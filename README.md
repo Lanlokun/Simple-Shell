@@ -2,6 +2,8 @@
 
 As part of the peer projects under the ALX curriculum , we have been assigned to write a simple shell program that emulates the original unix shell and can perform most of it's basic operations. 
 
+Written in C
+
 ##  Compilation
 
 Enter the following commands into your terminal : 
