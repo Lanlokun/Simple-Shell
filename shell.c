@@ -221,26 +221,29 @@ int main(void)
 		* child process created for the execution of commands passed
 		*/
 	
-		pid = fork();
 
-		if (pid == -1)
+		if (fork() == -1)
 		{	
 			perror("Error");
 			return (-1);
 		}
-		if (pid == 0)
+
+		if (fork() == 0)
 		{
 
-			if (execve(*av, av, environ) == -1)
-			{
-				pid = -1;
-				
-				perror("Error");
-				free(buff);
-				free(av);
-				return (-1);
-			}
-		
+				if (execve(*av, av, environ) == -1)
+				{
+					pid = -1; 				
+					perror("Error");
+					free(buff);
+					free(av);
+					return (-1);
+				}
+				else
+				{
+					printf("process %d\n" , getpid());
+					
+				}
 		}
 		else
 		{
@@ -258,6 +261,8 @@ int main(void)
 	/*
 	 * program terminates here
 	 */
+
+	 	printf("process %d terminated\n", getpid());
 
 		printf("\nBye\n");
 		return (0);
