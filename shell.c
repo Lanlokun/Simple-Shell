@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
+
 
 /*
 * Function Declarations for builtin shell commands:
@@ -220,30 +222,25 @@ int main(void)
 		/*
 		* child process created for the execution of commands passed
 		*/
+
+		printf("firstpid: %d\n", getpid());
 	
+		pid = fork();
 
-		if (fork() == -1)
-		{	
-			perror("Error");
-			return (-1);
-		}
-
-		if (fork() == 0)
+		if (pid == 0)
 		{
+			printf("pid: %d\n", getpid());
 
-				if (execve(*av, av, environ) == -1)
-				{
-					pid = -1; 				
-					perror("Error");
-					free(buff);
-					free(av);
-					return (-1);
-				}
-				else
-				{
-					printf("process %d\n" , getpid());
-					
-				}
+			int execute = execve(*av, av, environ);
+
+			if (execute == -1)
+			{
+				perror("Error");
+				exit(1);
+				printf("pid: %d\n", getpid());
+			}
+			
+		
 		}
 		else
 		{
@@ -262,7 +259,7 @@ int main(void)
 	 * program terminates here
 	 */
 
-	 	printf("process %d terminated\n", getpid());
+	    printf("pid %d\n", getpid());
 
 		printf("\nBye\n");
 		return (0);
