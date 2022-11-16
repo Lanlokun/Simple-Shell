@@ -117,7 +117,7 @@ char **params(char *buff)
 
 	while (token)
 	{
-		// printf("token: %s", token);
+		/*printf("token: %s", token);*/
 		if (i == 0)
 		{
 			token = cmd_path(token);
@@ -143,12 +143,13 @@ char **params(char *buff)
 
 extern char **environ;
 
-int main(int argc, char **argv)
+int main(void)
 {
 	int run = 1, nb, i;
 	size_t size = 10;
-	pid_t pid, ppid;
-	char *buff, *tmpbuff, **av;
+	pid_t pid;
+	char *buff, **av;
+
 
     
 	while(run)
@@ -163,7 +164,6 @@ int main(int argc, char **argv)
 		if (isatty(STDIN_FILENO) == 1)
 			printf(":) ");
 		nb = getline(&buff, &size, stdin);
-		
 
 
 		/*
@@ -183,7 +183,7 @@ int main(int argc, char **argv)
 		{
 			for (nb = 0; environ[nb]; nb++)
 			{
-				printf("%s/n", environ[nb]);
+				printf("%s\n", environ[nb]);
 			}
 			continue;
 		}
@@ -198,22 +198,16 @@ int main(int argc, char **argv)
 			continue;
 		}
 
-		// if (!strcmp(buff, "cd"))
-		// {
-		// 		if (!chdir(av[1]))
-		// 			perror("Error");
-		// 		free(av);
-		// }
 	
 		if (buff[nb - 1] != '\n')
 			break;
 
 		av = params(buff);
 
-		if (!strcmp(buff[0], "cd"))
+		if (!strcmp(buff, "cd"))
 		{
 			char *path = av[1];
-			if(!chdir(path))
+			if(chdir(path))
 				perror("Error");
 		}
 
@@ -231,18 +225,16 @@ int main(int argc, char **argv)
 
 		if (pid == -1)
 		{	
+			perror("Error");
 			return (-1);
 		}
-		if(nb != -1 && ppid == -1)
-		{
-			printf("terminating...");
-		}
-		
 		if (pid == 0)
 		{
 
 			if (execve(*av, av, environ) == -1)
 			{
+				pid = -1;
+				
 				perror("Error");
 				free(buff);
 				free(av);
@@ -255,8 +247,6 @@ int main(int argc, char **argv)
 			wait(NULL);
 		}
 
-		 if (nb == -1)
-       		 printf("CTRL + D captured\n");
 	/*
 	 *release of all memory used
 	 */
