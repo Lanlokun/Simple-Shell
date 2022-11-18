@@ -1,7 +1,7 @@
 #include "shell.h"
 
 /**
- * _strcat: join cmd prefix to cmd name
+ * _strcat - join cmd prefix to cmd name
  * @prefix: cmd prefix
  * @cmd: command name
  *

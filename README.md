@@ -1,17 +1,17 @@
 # Simple Shell Project By Malik K Lanlokun and Okuhle Nsibande
 
-As part of the peer projects under the ALX curriculum , we have been assigned to write a simple shell program that emulates the original unix shell and can perform most of it's basic operations. 
+As part of the peer projects under the ALX curriculum , we have been assigned to write a simple shell program that emulates the original unix shell and can perform most of it's basic operations.
 
 Written in C
 
 ##  Compilation
 
-Enter the following commands into your terminal : 
+Enter the following commands into your terminal :
 
  ```
-    gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o shs 
+    gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o shs
     ./shs
-    
+
  ```
 
 
@@ -25,18 +25,16 @@ Enter the following commands into your terminal :
 1. ls
 2. mkdir test
 3. ls- la
-4. ls -l 
+4. ls -l
 5. pwd
 
 
-## Features 
+## Features
 
         Executes single commands and  multiple valid command line arguments
-        Handles errors 
-        Handle paths
-        Handles EOF & EXIT 
+        Handles errors
+        Handles EOF & EXIT
         HANDLES ENVIRONMENT VARIABLES
-        
 
 ## Contributing
 
