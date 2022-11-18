@@ -11,12 +11,13 @@
 char *_strcat(char *prefix, char *cmd)
 {
 	int i = 0, j = 0;
-	char *path;
+	char *path, *_nam = __progname;
 
 	path = malloc(sizeof(cmd) * (_strlen(cmd) + 15));
 	if (!path)
 	{
-		write(STDOUT_FILENO, fncName, _strlen(fncName));
+		write(STDOUT_FILENO, _nam, _strlen(_nam));
+		write(STDOUT_FILENO, ": ", 2);
 		perror("");
 		return (NULL);
 	}
@@ -41,9 +42,10 @@ char *_strcat(char *prefix, char *cmd)
 
 char *is_path(char *str)
 {
+	char *_nam = _strcat(__progname, ": ");
 	if (access(str, F_OK))
 	{
-		write(STDOUT_FILENO, fncName, _strlen(fncName));
+		write(STDOUT_FILENO, _nam, _strlen(_nam));
 		perror("");
 		return (NULL);
 	}
@@ -90,6 +92,7 @@ char **params(char *input)
 		j = 0;
 		token = strtok(NULL, " ");
 	}
+	av[i] = 0;
 	return (&*av);
 }
 

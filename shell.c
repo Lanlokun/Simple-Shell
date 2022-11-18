@@ -5,7 +5,6 @@
 */
 #include "shell.h"
 
-char *fncName;
 /**
  * main - shell entry point
  * @argc: number of arguments
@@ -21,7 +20,10 @@ int main(__attribute__((unused)) int argc, char **argv)
 	char *input, **av;
 	pid_t pid;
 
-	fncName = _strcat(argv[0], ": ");
+	//progName = _strcat(argv[0], ": ");
+	char *_nam;
+	_nam = _strcat(__progname, ": ");
+	
 	while (run)
 	{
 		size = 10;
@@ -46,8 +48,8 @@ int main(__attribute__((unused)) int argc, char **argv)
 		{
 			if (execve(av[0], av, NULL) == -1)
 			{
-				write(STDOUT_FILENO, &fncName, _strlen(fncName));
-				perror(" ");
+				write(STDOUT_FILENO, _nam, _strlen(_nam));
+				perror("");
 			}
 			free(av);
 		}
