@@ -43,6 +43,7 @@ char *_strcat(char *prefix, char *cmd)
 char *is_path(char *str)
 {
 	char *_nam = _strcat(__progname, ": ");
+
 	if (access(str, F_OK))
 	{
 		write(STDOUT_FILENO, _nam, _strlen(_nam));

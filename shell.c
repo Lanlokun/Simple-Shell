@@ -17,13 +17,9 @@ int main(__attribute__((unused)) int argc, char **argv)
 {
 	int run = 1, nb;
 	size_t size;
-	char *input, **av;
+	char *input, **av, *_nam = _strcat(__progname, ": ");
 	pid_t pid;
 
-	//progName = _strcat(argv[0], ": ");
-	char *_nam;
-	_nam = _strcat(__progname, ": ");
-	
 	while (run)
 	{
 		size = 10;
