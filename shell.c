@@ -14,13 +14,11 @@
  * Return: 0 on success
  */
 
-extern char **environ;
-
-int main(int argc, char **argv)
+int main(__attribute__((unused)) int argc, char **argv)
 {
 	int run = 1, nb;
 	size_t size;
-	char *input, **av, *PROG_NAME = argv[0], *path;
+	char *input, **av;
 	pid_t pid;
 
 	while(run)
@@ -28,34 +26,10 @@ int main(int argc, char **argv)
 		size = 10;
 		input = malloc(size);
 		if (isatty(STDIN_FILENO) == 1)
-			printf(":) ");
+			write(STDOUT_FILENO, ":) ", 3);
 		nb = getline(&input, &size, stdin);
-		if (input[nb - 1] != '\n')
+		if (input[nb - 1] != '\n' || nb == -1)
 			break;
-
-		/*
-		*statement that executes the exit command
-		*/
-	
-		if (!_strcmp(input, "exit\n"))
-			break;
-
-		/*
-		*statement that prints the env variables
-		*/
-
-		if(!_strcmp(input, "env\n"))
-		{
-			for (nb = 0; environ[nb]; nb++)
-			{
-				printf("%s\n", environ[nb]);
-			}
-			continue;
-		}
-
-		/*
-		*statement that executes the clear command
-		*/
 
 		av = params(input);
 		if (!av)
@@ -64,52 +38,19 @@ int main(int argc, char **argv)
 			continue;
 		}
 
-		if (!_strcmp(input, "clear\n"))
-		{
-			system("clear");
-			continue;
-		}
-
-	
-
-		/*
-		* child process created for the execution of commands passed
-		*/
-
 		pid = fork();
-
 		if (pid)
-		{
 			wait(NULL);
-		}
 		else
 		{
-			if (!_strcmp(*av, "cd"))
+			if (execve(av[0], av, NULL) == -1)
 			{
-				path = av[1];
-
-				if(!path)
-					path = "/";
-				if(chdir(path))
-					perror("Error");
-				free(av);
-				free(input);
-			}
-			else if (execve(av[0], av, NULL) == -1)
-			{
-				printf("%s: ", PROG_NAME);
+				write(STDOUT_FILENO, argv[0], _strlen(argv[0]));
 				perror("");
 			}
 			free(av);
 		}
 		free(input);
 	}
-
-	/*
-	 * program terminates here
-	 */
-
-	printf("\nBye\n");
 	return (0);
-
 }

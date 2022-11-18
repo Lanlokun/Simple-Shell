@@ -13,7 +13,7 @@ char *_strcat(char *prefix, char *cmd)
 	int i = 0, j = 0;
 	char *path;
 
-	path = malloc(sizeof(cmd) * (strlen(cmd) + 5));
+	path = malloc(sizeof(cmd) * (_strlen(cmd) + 5));
 	if (!path)
 	{
 		perror("Error");
@@ -46,27 +46,11 @@ char *_strcat(char *prefix, char *cmd)
 
 char **params(char *input)
 {
-	char *command, *token, **av;
+	char *token, **av;
 	int i = 0, j = 0;
 
 	if (*input == '\n')
 		return (NULL);
-
-	/*if (!strcmp(input, "exit\n") || nb == -1)
-		break;
-	if (!strcmp(*av, "cd"))
-	{
-		if (chdir(av[1]))
-			perror("Error");
-		write(1, "passed through", 10);
-		return (0);
-	}*/
-
-	if (!strcmp(input, "clear\n"))
-	{
-		system("clear");
-		return (NULL);
-	}
 
 	av = malloc(10);
 	if (!av)
@@ -75,17 +59,18 @@ char **params(char *input)
 	token = strtok(input, " ");
 	while (token)
 	{
-		av[i] = malloc(strlen(token) + 5);
-		if (i == 0 && (!strcmp(token, "cd")))
-			printf("");
-		else if (i == 0 && access(token, F_OK))
+		av[i] = malloc(_strlen(token) + 5);
+		token = strip(token);
+		if (i == 0 && !cmd(token))
+				return (NULL);
+		if (i == 0 && access(token, F_OK))
 			token = _strcat("/bin/", token);
 		if (!token)
 		{
 			free(av);
 			return (NULL);
 		}
-		while(*token && (*token != '\n'))
+		while(*token)
 			av[i][j++] = *token++;
 		av[i++][j] = '\0';
 		j = 0;
@@ -94,9 +79,34 @@ char **params(char *input)
 	return (&*av);
 }
 
-/*
-* Function to check the equality of two provided strings:
-*/
+/**
+ * strip - remove spaces from word
+ * @str: string to strip
+ *
+ * Return: stripped string
+ */
+
+char *strip(char *str)
+{
+	char *res = malloc(_strlen(str));
+	int i = 0;
+
+	while (str[i] != 9 && str[i] != 32 && str[i] != 10)
+	{
+		res[i] = str[i];
+		i++;
+	}
+	res[i] = '\0';
+	return (res);
+}
+
+/**
+ * _strcmp - Check the equality of two strings
+ * @s1: original string
+ * @s2: comparison string
+ *
+ * Return: 0 on success, else distance of uncommon characters
+ */
 
 int _strcmp(char *s1, char *s2)
 {

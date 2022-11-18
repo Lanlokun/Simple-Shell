@@ -9,8 +9,8 @@ Written in C
 Enter the following commands into your terminal : 
 
  ```
-    gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o shell 
-    ./shell
+    gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o shs 
+    ./shs
     
  ```
 
