@@ -19,7 +19,7 @@ int cmd(char *str)
 	else if (!_strcmp(str, "clear"))
 	{
 		system("clear");
-		return (0);;
+		return (0);
 	}
 	return (1);
 }

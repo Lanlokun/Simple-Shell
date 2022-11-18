@@ -21,12 +21,12 @@ int main(__attribute__((unused)) int argc, char **argv)
 	char *input, **av;
 	pid_t pid;
 
-	while(run)
+	while (run)
 	{
 		size = 10;
 		input = malloc(size);
 		if (isatty(STDIN_FILENO) == 1)
-			write(STDOUT_FILENO, ":) ", 3);
+			write(STDOUT_FILENO, "($) ", 4);
 		nb = getline(&input, &size, stdin);
 		if (input[nb - 1] != '\n' || nb == -1)
 			break;

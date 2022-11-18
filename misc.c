@@ -17,7 +17,7 @@ char *_strcat(char *prefix, char *cmd)
 	if (!path)
 	{
 		perror("Error");
-		return(NULL);
+		return (NULL);
 	}
 
 	while (prefix[i])
@@ -62,7 +62,7 @@ char **params(char *input)
 		av[i] = malloc(_strlen(token) + 5);
 		token = strip(token);
 		if (i == 0 && !cmd(token))
-				return (NULL);
+			return (NULL);
 		if (i == 0 && access(token, F_OK))
 			token = _strcat("/bin/", token);
 		if (!token)
@@ -70,7 +70,7 @@ char **params(char *input)
 			free(av);
 			return (NULL);
 		}
-		while(*token)
+		while (*token)
 			av[i][j++] = *token++;
 		av[i++][j] = '\0';
 		j = 0;
