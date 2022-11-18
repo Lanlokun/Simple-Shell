@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+extern char **environ;
+
 char *strconcat(char *prefix, char *cmd);
 char **params(char *buff);
 int _strcmp(char *s1, char *s2);
