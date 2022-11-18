@@ -13,10 +13,11 @@ char *_strcat(char *prefix, char *cmd)
 	int i = 0, j = 0;
 	char *path;
 
-	path = malloc(sizeof(cmd) * (_strlen(cmd) + 5));
+	path = malloc(sizeof(cmd) * (_strlen(cmd) + 15));
 	if (!path)
 	{
-		perror("Error");
+		write(STDOUT_FILENO, fncName, _strlen(fncName));
+		perror("");
 		return (NULL);
 	}
 
@@ -28,13 +29,25 @@ char *_strcat(char *prefix, char *cmd)
 		path[j++] = cmd[i++];
 	path[j] = '\0';
 
-	if (access(path, F_OK))
+	return (&*path);
+}
+
+/**
+ * is_path - determine if string is valid path
+ * @str: string to evaluate
+ *
+ * Return: str on success, else NULL
+ */
+
+char *is_path(char *str)
+{
+	if (access(str, F_OK))
 	{
-		perror("Error");
-		free(path);
+		write(STDOUT_FILENO, fncName, _strlen(fncName));
+		perror("");
 		return (NULL);
 	}
-	return (&*path);
+	return (str);
 }
 
 /**
@@ -64,7 +77,8 @@ char **params(char *input)
 		if (i == 0 && !cmd(token))
 			return (NULL);
 		if (i == 0 && access(token, F_OK))
-			token = _strcat("/bin/", token);
+			token = is_path(_strcat("/bin/", token));
+
 		if (!token)
 		{
 			free(av);
