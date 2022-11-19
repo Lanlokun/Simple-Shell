@@ -13,7 +13,7 @@
  * Return: 0 on success
  */
 
-int main(__attribute__((unused)) int argc, char **argv)
+int main(void)
 {
 	int run = 1, nb;
 	size_t size;
