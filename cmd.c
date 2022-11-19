@@ -23,3 +23,4 @@ int cmd(char *str)
 	}
 	return (1);
 }
+

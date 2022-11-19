@@ -21,3 +21,4 @@ char *_strcat(char *prefix, char *cmd);
 extern char *_nam;
 
 #endif
+
